@@ -58,7 +58,7 @@ const HomePage = ()=> {
           {displayMeals.map((meal) => (
             <Link key={meal.idMeal} to={`/meals/${meal.idMeal}`}>
               <Card>
-                <CardHeader>{meal.strMeal}</CardHeader>
+                <CardHeader className='text-red-500'>{meal.strMeal}</CardHeader>
                 <CardBody>
                   <Image src={meal.strMealThumb} alt={meal.strMeal} />
                 </CardBody>
