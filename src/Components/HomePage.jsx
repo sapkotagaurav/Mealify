@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const MEALDB_API_URL = 'https://www.themealdb.com/api/json/v1/1352/randomselection.php';
+const MEALDB_API_URL_SEARCH= `https://www.themealdb.com/api/json/v1/1/search.php?s=`
 
 const HomePage = ()=> {
   const [meals, setMeals] = useState([]);
@@ -11,6 +12,7 @@ const HomePage = ()=> {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [timerId, setTimerId] = useState(null);
 
   useEffect(() => {
     const fetchMeals = async () => {
@@ -21,7 +23,7 @@ const HomePage = ()=> {
         const response = await axios.get(MEALDB_API_URL);
         setMeals(response.data.meals);
       } catch (error) {
-        setError(error);
+        setError(`Error fetching meals`);
       } finally {
         setIsLoading(false);
       }
@@ -32,12 +34,32 @@ const HomePage = ()=> {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
-    setFilteredMeals(
-      meals.filter((meal) => meal.strMeal.toLowerCase().includes(searchTerm))
-    );
+    
+      if(searchTerm){
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+        const newTimerId = setTimeout(() => {
+          axios.get(`${MEALDB_API_URL_SEARCH}${searchTerm}`).then(res=>{
+            if (res.data.meals) {
+              setFilteredMeals(res.data.meals)
+              
+            }else{
+              setError(`No meals found for keyword ${searchTerm}`)
+
+            }
+          }
+          )
+          
+        }, 2000);
+        setTimerId(newTimerId)
+      }
+      
+      
+    
   };
 
-  const displayMeals = filteredMeals.length > 0 ? filteredMeals : meals;
+  const displayMeals = filteredMeals && filteredMeals.length > 0 ? filteredMeals : meals;
 
   return (
     <Box p={4}>
@@ -45,14 +67,13 @@ const HomePage = ()=> {
         <Heading as="h2">Meal Explorer</Heading>
         <Box ml="auto">
           <Input placeholder="Search Meals" value={searchTerm} onChange={handleSearch} />
-          <Button ml={2}>Search</Button>
         </Box>
       </Flex>
 
       {isLoading ? (
         <Text>Loading meals...</Text>
       ) : error ? (
-        <Text color="red.500">Error fetching meals: {error.message}</Text>
+        <Text color="red.500">Error fetching meals: {error}</Text>
       ) : (
         <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={4}>
           {displayMeals.map((meal) => (
