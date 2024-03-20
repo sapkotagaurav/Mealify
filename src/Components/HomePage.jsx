@@ -30,7 +30,7 @@ const HomePage = ()=> {
     };
 
     fetchMeals();
-  }, []);
+  }, [searchTerm]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
@@ -79,7 +79,7 @@ const HomePage = ()=> {
           {displayMeals.map((meal) => (
             <Link key={meal.idMeal} to={`/meals/${meal.idMeal}`}>
               <Card>
-                <CardHeader className='text-red-500'>{meal.strMeal}</CardHeader>
+                <CardHeader className='text-gray-900 font-bold'>{meal.strMeal}</CardHeader>
                 <CardBody>
                   <Image src={meal.strMealThumb} alt={meal.strMeal} />
                 </CardBody>
